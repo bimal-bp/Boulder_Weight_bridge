@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Operations - Tipper Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .tipper-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .tipper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .tipper-id {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .shift-section {
+            margin-top: 15px;
+        }
+        .shift-header {
+            background-color: #eaeaea;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .trip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .trip-table th, .trip-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .trip-table th {
+            background-color: #f2f2f2;
+        }
+        .trip-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .summary {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #b8d8e6;
+            padding: 10px;
+            text-align: center;
+        }
+        .summary-table th {
+            background-color: #d0e7f5;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .no-trips {
+            color: #777;
+            font-style: italic;
+            text-align: center;
+            padding: 10px;
+        }
+        .add-trip-btn {
+            background-color: #3498db;
+            margin-bottom: 10px;
+        }
+        .add-trip-btn:hover {
+            background-color: #2980b9;
+        }
+        .night-shift {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Transport Operations - Tipper Management</h1>
+        
+        <!-- Tipper Selection -->
+        <div class="form-group">
+            <label for="tipper-select">Select Tipper:</label>
+            <select id="tipper-select">
+                <option value="AP39UQ0095">AP39UQ0095</option>
+                <option value="AP39UQ0097">AP39UQ0097</option>
+                <option value="AP39UW9880">AP39UW9880</option>
+                <option value="AP39UW9881">AP39UW9881</option>
+                <option value="AP39UY4651">AP39UY4651</option>
+                <option value="AP39WQ0926">AP39WQ0926</option>
+                <option value="AP39WQ0928">AP39WQ0928</option>
+                <option value="AP39WQ2056">AP39WQ2056</option>
+                <option value="AP39WF2052">AP39WF2052</option>
+                <option value="AP39WF2057">AP39WF2057</option>
+                <option value="AP39WF2058">AP39WF2058</option>
+                <option value="AP39WF2059">AP39WF2059</option>
+            </select>
+        </div>
+        
+        <!-- Selected Tipper Details -->
+        <div id="tipper-details">
+            <!-- Dynamic content will be loaded here -->
+        </div>
+        
+        <!-- Daily Summary -->
+        <div class="summary">
+            <h2>Daily Summary</h2>
+            
+            <h3>FTD (First Trip Details):</h3>
+            <div class="form-group">
+                <label for="first-trip-time">First Trip Time:</label>
+                <input type="datetime-local" id="first-trip-time">
+            </div>
+            <div class="form-group">
+                <label for="first-trip-tipper">First Trip Tipper:</label>
+                <select id="first-trip-tipper">
+                    <option value="">-- Select Tipper --</option>
+                    <option value="AP39UQ0095">AP39UQ0095</option>
+                    <option value="AP39UQ0097">AP39UQ0097</option>
+                    <option value="AP39UW9880">AP39UW9880</option>
+                    <option value="AP39UW9881">AP39UW9881</option>
+                    <option value="AP39UY4651">AP39UY4651</option>
+                    <option value="AP39WQ0926">AP39WQ0926</option>
+                    <option value="AP39WQ0928">AP39WQ0928</option>
+                    <option value="AP39WQ2056">AP39WQ2056</option>
+                    <option value="AP39WF2052">AP39WF2052</option>
+                    <option value="AP39WF2057">AP39WF2057</option>
+                    <option value="AP39WF2058">AP39WF2058</option>
+                    <option value="AP39WF2059">AP39WF2059</option>
+                </select>
+            </div>
+            
+            <h3>Transport Summary</h3>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Shift</th>
+                        <th>Total Trips</th>
+                        <th>Total Tonnage</th>
+                        <th>Avg Tonnage/Trip</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Day</td>
+                        <td id="day-total-trips">0</td>
+                        <td id="day-total-tonnage">0.0</td>
+                        <td id="day-avg-tonnage">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Night</td>
+                        <td id="night-total-trips">0</td>
+                        <td id="night-total-tonnage">0.0</td>
+                        <td id="night-avg-tonnage">0.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Combined Total</strong></td>
+                        <td id="combined-total-trips">0</td>
+                        <td id="combined-total-tonnage">0.0</td>
+                        <td id="combined-avg-tonnage">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="calculate-btn">Calculate Transport</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data structure to store tipper information
+        const tippers = {
+            "AP39UQ0095": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.5 // Sample tare weight in tons
+            },
+            "AP39UQ0097": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.8
+            },
+            "AP39UW9880": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.0
+            },
+            "AP39UW9881": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.0
+            },
+            "AP39UY4651": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.7
+            },
+            "AP39WQ0926": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.5
+            },
+            "AP39WQ0928": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.5
+            },
+            "AP39WQ2056": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 12.8
+            },
+            "AP39WF2052": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.2
+            },
+            "AP39WF2057": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.2
+            },
+            "AP39WF2058": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.2
+            },
+            "AP39WF2059": {
+                dayShift: [],
+                nightShift: [],
+                tareWeight: 13.2
+            }
+        };
+
+        // Current selected tipper
+        let currentTipper = "AP39UQ0095";
+
+        // DOM elements
+        const tipperSelect = document.getElementById('tipper-select');
+        const tipperDetails = document.getElementById('tipper-details');
+        const calculateBtn = document.getElementById('calculate-btn');
+
+        // Initialize the page
+        function init() {
+            // Load tipper details when page loads
+            loadTipperDetails(currentTipper);
+            
+            // Add event listeners
+            tipperSelect.addEventListener('change', function() {
+                currentTipper = this.value;
+                loadTipperDetails(currentTipper);
+            });
+            
+            calculateBtn.addEventListener('click', calculateSummary);
+        }
+
+        // Load tipper details
+        function loadTipperDetails(tipperId) {
+            const tipper = tippers[tipperId];
+            
+            let html = `
+                <div class="tipper-card">
+                    <div class="tipper-header">
+                        <span class="tipper-id">${tipperId}</span>
+                        <span>Tare Weight: ${tipper.tareWeight} tons</span>
+                    </div>
+                    
+                    <div class="shift-section">
+                        <div class="shift-header">Day Shift</div>
+                        ${renderTripTable(tipper.dayShift, 'day', tipperId)}
+                        <button class="add-trip-btn" onclick="addTrip('${tipperId}', 'day')">Add Day Trip</button>
+                        <div class="trip-summary">
+                            <strong>Day Trips:</strong> ${tipper.dayShift.length} | 
+                            <strong>Day Total:</strong> ${calculateShiftTotal(tipper.dayShift, tipper.tareWeight).toFixed(1)} tons
+                        </div>
+                    </div>
+                    
+                    <div class="shift-section night-shift">
+                        <div class="shift-header">Night Shift</div>
+                        ${renderTripTable(tipper.nightShift, 'night', tipperId)}
+                        <button class="add-trip-btn" onclick="addTrip('${tipperId}', 'night')">Add Night Trip</button>
+                        <div class="trip-summary">
+                            <strong>Night Trips:</strong> ${tipper.nightShift.length} | 
+                            <strong>Night Total:</strong> ${calculateShiftTotal(tipper.nightShift, tipper.tareWeight).toFixed(1)} tons
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            tipperDetails.innerHTML = html;
+        }
+
+        // Render trip table for a shift
+        function renderTripTable(trips, shiftType, tipperId) {
+            if (trips.length === 0) {
+                return '<div class="no-trips">No trips recorded for this shift</div>';
+            }
+            
+            let tableHtml = `
+                <table class="trip-table">
+                    <thead>
+                        <tr>
+                            <th>Trip #</th>
+                            <th>In Time</th>
+                            <th>Out Time</th>
+                            <th>Gross Weight (tons)</th>
+                            <th>Net Weight (tons)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            trips.forEach((trip, index) => {
+                const netWeight = (trip.grossWeight - tippers[tipperId].tareWeight).toFixed(1);
+                tableHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${formatDateTime(trip.inTime)}</td>
+                        <td>${formatDateTime(trip.outTime)}</td>
+                        <td>${trip.grossWeight.toFixed(1)}</td>
+                        <td>${netWeight}</td>
+                        <td>
+                            <button onclick="editTrip('${tipperId}', '${shiftType}', ${index})">Edit</button>
+                            <button onclick="deleteTrip('${tipperId}', '${shiftType}', ${index})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += `</tbody></table>`;
+            return tableHtml;
+        }
+
+        // Calculate total for a shift
+        function calculateShiftTotal(trips, tareWeight) {
+            return trips.reduce((total, trip) => {
+                return total + (trip.grossWeight - tareWeight);
+            }, 0);
+        }
+
+        // Add a new trip
+        function addTrip(tipperId, shiftType) {
+            const inTime = prompt("Enter In Time (YYYY-MM-DD HH:MM):");
+            if (!inTime) return;
+            
+            const outTime = prompt("Enter Out Time (YYYY-MM-DD HH:MM):");
+            if (!outTime) return;
+            
+            const grossWeight = parseFloat(prompt("Enter Gross Weight (tons):"));
+            if (isNaN(grossWeight)) return;
+            
+            const newTrip = {
+                inTime: new Date(inTime),
+                outTime: new Date(outTime),
+                grossWeight: grossWeight
+            };
+            
+            tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'].push(newTrip);
+            loadTipperDetails(tipperId);
+            calculateSummary();
+        }
+
+        // Edit a trip
+        function editTrip(tipperId, shiftType, index) {
+            const trips = tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'];
+            const trip = trips[index];
+            
+            const newInTime = prompt("Enter new In Time (YYYY-MM-DD HH:MM):", formatDateTime(trip.inTime));
+            if (!newInTime) return;
+            
+            const newOutTime = prompt("Enter new Out Time (YYYY-MM-DD HH:MM):", formatDateTime(trip.outTime));
+            if (!newOutTime) return;
+            
+            const newGrossWeight = parseFloat(prompt("Enter new Gross Weight (tons):", trip.grossWeight));
+            if (isNaN(newGrossWeight)) return;
+            
+            trip.inTime = new Date(newInTime);
+            trip.outTime = new Date(newOutTime);
+            trip.grossWeight = newGrossWeight;
+            
+            loadTipperDetails(tipperId);
+            calculateSummary();
+        }
+
+        // Delete a trip
+        function deleteTrip(tipperId, shiftType, index) {
+            if (confirm("Are you sure you want to delete this trip?")) {
+                tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'].splice(index, 1);
+                loadTipperDetails(tipperId);
+                calculateSummary();
+            }
+        }
+
+        // Format date for display
+        function formatDateTime(date) {
+            if (!(date instanceof Date)) return '';
+            
+            const pad = num => num.toString().padStart(2, '0');
+            
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+                   `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
+        // Calculate and display summary
+        function calculateSummary() {
+            let dayTrips = 0;
+            let dayTonnage = 0;
+            let nightTrips = 0;
+            let nightTonnage = 0;
+            
+            // Calculate totals across all tippers
+            Object.keys(tippers).forEach(tipperId => {
+                const tipper = tippers[tipperId];
+                
+                dayTrips += tipper.dayShift.length;
+                dayTonnage += calculateShiftTotal(tipper.dayShift, tipper.tareWeight);
+                
+                nightTrips += tipper.nightShift.length;
+                nightTonnage += calculateShiftTotal(tipper.nightShift, tipper.tareWeight);
+            });
+            
+            // Update summary table
+            document.getElementById('day-total-trips').textContent = dayTrips;
+            document.getElementById('day-total-tonnage').textContent = dayTonnage.toFixed(1);
+            document.getElementById('day-avg-tonnage').textContent = dayTrips > 0 ? (dayTonnage / dayTrips).toFixed(1) : '0.0';
+            
+            document.getElementById('night-total-trips').textContent = nightTrips;
+            document.getElementById('night-total-tonnage').textContent = nightTonnage.toFixed(1);
+            document.getElementById('night-avg-tonnage').textContent = nightTrips > 0 ? (nightTonnage / nightTrips).toFixed(1) : '0.0';
+            
+            document.getElementById('combined-total-trips').textContent = dayTrips + nightTrips;
+            document.getElementById('combined-total-tonnage').textContent = (dayTonnage + nightTonnage).toFixed(1);
+            
+            const totalTrips = dayTrips + nightTrips;
+            document.getElementById('combined-avg-tonnage').textContent = totalTrips > 0 ? 
+                ((dayTonnage + nightTonnage) / totalTrips).toFixed(1) : '0.0';
+        }
+
+        // Initialize the page when loaded
+        window.onload = init;
+    </script>
+</body>
+</html>
