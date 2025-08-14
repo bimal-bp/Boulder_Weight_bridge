@@ -102,11 +102,20 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .report-btn {
+            background-color: #27ae60;
+            margin-bottom: 20px;
+        }
+        .report-btn:hover {
+            background-color: #219653;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Boulder Weight Bridge</h1>
+        
+        <button id="ftdReportBtn" class="report-btn">FTD Report</button>
         
         <div class="form-section">
             <form id="dataForm">
@@ -119,14 +128,18 @@
                         <label for="vehicleNo">Vehicle No</label>
                         <select id="vehicleNo" required>
                             <option value="">Select Vehicle</option>
-                            <option value="KA01AB1234">KA01AB1234</option>
-                            <option value="KA02CD5678">KA02CD5678</option>
-                            <option value="KA03EF9012">KA03EF9012</option>
-                            <option value="KA04GH3456">KA04GH3456</option>
-                            <option value="KA05IJ7890">KA05IJ7890</option>
-                            <option value="KA06KL2345">KA06KL2345</option>
-                            <option value="KA07MN6789">KA07MN6789</option>
-                            <option value="KA08OP0123">KA08OP0123</option>
+                            <option value="AP39UQ0095">AP39UQ0095</option>
+                            <option value="AP39UQ0097">AP39UQ0097</option>
+                            <option value="AP39UW9880">AP39UW9880</option>
+                            <option value="AP39UW9881">AP39UW9881</option>
+                            <option value="AP39UY4651">AP39UY4651</option>
+                            <option value="AP39UY4652">AP39UY4652</option>
+                            <option value="AP39WC0926">AP39WC0926</option>
+                            <option value="AP39WC0927">AP39WC0927</option>
+                            <option value="AP39WC0928">AP39WC0928</option>
+                            <option value="AP39WF2052">AP39WF2052</option>
+                            <option value="AP39WF2057">AP39WF2057</option>
+                            <option value="AP39WF2058">AP39WF2058</option>
                         </select>
                     </div>
                 </div>
@@ -172,20 +185,13 @@
                     <div class="form-group">
                         <label for="supplier">Supplier</label>
                         <select id="supplier">
-                            <option value="SGX BOULDERS">SGX BOULDERS</option>
-                            <option value="SGX STOCK">SGX STOCK</option>
+                            <option value="Company Tippers">SGX Boulder</option>
+                            <option value="STOCK TO CRUSHER">SGX Stock</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="driver">Driver</label>
-                        <select id="driver">
-                            <option value="">Select Driver</option>
-                            <option value="Rajesh Kumar">Rajesh Kumar</option>
-                            <option value="Mohan Singh">Mohan Singh</option>
-                            <option value="Vijay Patel">Vijay Patel</option>
-                            <option value="Suresh Reddy">Suresh Reddy</option>
-                            <option value="Anil Sharma">Anil Sharma</option>
-                        </select>
+                        <input type="text" id="driver" placeholder="Enter driver name">
                     </div>
                 </div>
                 
@@ -227,38 +233,25 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- FTD Report Modal -->
+        <div id="ftdReportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+            <div style="background-color: white; margin: 50px auto; padding: 20px; width: 80%; max-width: 900px; border-radius: 5px;">
+                <h2 style="text-align: center;">FTD Report</h2>
+                <div id="ftdReportContent" style="font-family: monospace; white-space: pre;"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="document.getElementById('ftdReportModal').style.display = 'none'">Close</button>
+                    <button onclick="printFTDReport()">Print Report</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Sample data for vehicles and drivers
-        const vehicles = [
-            "KA01AB1234", "KA02CD5678", "KA03EF9012", "KA04GH3456", 
-            "KA05IJ7890", "KA06KL2345", "KA07MN6789", "KA08OP0123"
-        ];
-        
-        const drivers = [
-            "Rajesh Kumar", "Mohan Singh", "Vijay Patel", 
-            "Suresh Reddy", "Anil Sharma"
-        ];
-
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize vehicle dropdown
-            const vehicleSelect = document.getElementById('vehicleNo');
-            vehicles.forEach(vehicle => {
-                const option = document.createElement('option');
-                option.value = vehicle;
-                option.textContent = vehicle;
-                vehicleSelect.appendChild(option);
-            });
-            
-            // Initialize driver dropdown
-            const driverSelect = document.getElementById('driver');
-            drivers.forEach(driver => {
-                const option = document.createElement('option');
-                option.value = driver;
-                option.textContent = driver;
-                driverSelect.appendChild(option);
-            });
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
             
             // Calculate net weight when gross or tare weight changes
             document.getElementById('grossWeight').addEventListener('input', calculateNetWeight);
@@ -281,12 +274,11 @@
             document.getElementById('searchBtn').addEventListener('click', searchEntries);
             document.getElementById('resetSearchBtn').addEventListener('click', resetSearch);
             
+            // FTD Report button
+            document.getElementById('ftdReportBtn').addEventListener('click', generateFTDReport);
+            
             // Load any existing data from localStorage
             loadData();
-            
-            // Set today's date as default
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = today;
         });
         
         function calculateNetWeight() {
@@ -392,9 +384,9 @@
                     <td>${index + 1}</td>
                     <td>${entry.date}</td>
                     <td>${entry.vehicleNo}</td>
-                    <td>${entry.grossWeight}</td>
-                    <td>${entry.tareWeight}</td>
-                    <td>${entry.netWeight}</td>
+                    <td>${parseFloat(entry.grossWeight).toFixed(2)}</td>
+                    <td>${parseFloat(entry.tareWeight).toFixed(2)}</td>
+                    <td>${parseFloat(entry.netWeight).toFixed(2)}</td>
                     <td>${entry.inTime}</td>
                     <td>${entry.outTime}</td>
                     <td>${entry.timeDiff}</td>
@@ -475,6 +467,98 @@
             for (let row of rows) {
                 row.style.display = '';
             }
+        }
+        
+        function generateFTDReport() {
+            const entries = JSON.parse(localStorage.getItem('weightEntries')) || [];
+            const selectedDate = document.getElementById('date').value;
+            
+            // Filter entries for the selected date
+            const dateEntries = entries.filter(entry => entry.date === selectedDate);
+            
+            // Group by supplier and vehicle
+            const reportData = {
+                "Company Tippers": {},
+                "Contractor(Govind) Tippers": {},
+                "STOCK TO CRUSHER": {}
+            };
+            
+            dateEntries.forEach(entry => {
+                if (!reportData[entry.supplier][entry.vehicleNo]) {
+                    reportData[entry.supplier][entry.vehicleNo] = {
+                        trips: 0,
+                        totalWeight: 0
+                    };
+                }
+                
+                if (entry.remark === "ISSUED") {
+                    reportData[entry.supplier][entry.vehicleNo].trips += 1;
+                    reportData[entry.supplier][entry.vehicleNo].totalWeight += parseFloat(entry.netWeight);
+                }
+            });
+            
+            // Generate report text
+            let reportText = `${selectedDate}\t\t\n`;
+            reportText += `Company Tippers\t\t\n`;
+            
+            // Add company tippers data
+            let companyTotalTrips = 0;
+            let companyTotalWeight = 0;
+            
+            for (const vehicle in reportData["Company Tippers"]) {
+                const data = reportData["Company Tippers"][vehicle];
+                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
+                companyTotalTrips += data.trips;
+                companyTotalWeight += data.totalWeight;
+            }
+            
+            reportText += `TOTAL\t${companyTotalTrips}\t${companyTotalWeight.toFixed(2)}\n\n`;
+            
+            // Add contractor tippers data
+            reportText += `Contractor(Govind) Tippers\t\t\n`;
+            let contractorTotalTrips = 0;
+            let contractorTotalWeight = 0;
+            
+            for (const vehicle in reportData["Contractor(Govind) Tippers"]) {
+                const data = reportData["Contractor(Govind) Tippers"][vehicle];
+                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
+                contractorTotalTrips += data.trips;
+                contractorTotalWeight += data.totalWeight;
+            }
+            
+            reportText += `TOTAL\t${contractorTotalTrips}\t${contractorTotalWeight.toFixed(2)}\n\n`;
+            
+            // Add stock to crusher data
+            reportText += `STOCK TO CRUSHER\t\t\n`;
+            let stockTotalTrips = 0;
+            let stockTotalWeight = 0;
+            
+            for (const vehicle in reportData["STOCK TO CRUSHER"]) {
+                const data = reportData["STOCK TO CRUSHER"][vehicle];
+                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
+                stockTotalTrips += data.trips;
+                stockTotalWeight += data.totalWeight;
+            }
+            
+            reportText += `TOTAL\t${stockTotalTrips}\t${stockTotalWeight.toFixed(2)}\n\n`;
+            
+            // Add summary
+            reportText += `\t\t\n`;
+            reportText += `SGX BOULDERS\t${companyTotalTrips}\t${companyTotalWeight.toFixed(2)}\n`;
+            reportText += `SGX STOCK\t${stockTotalTrips}\t${stockTotalWeight.toFixed(2)}\n`;
+            reportText += `TOTAL\t${companyTotalTrips + stockTotalTrips}\t${(companyTotalWeight + stockTotalWeight).toFixed(2)}\n`;
+            
+            // Display report in modal
+            document.getElementById('ftdReportContent').textContent = reportText;
+            document.getElementById('ftdReportModal').style.display = 'block';
+        }
+        
+        function printFTDReport() {
+            const reportContent = document.getElementById('ftdReportContent').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<pre>' + reportContent + '</pre>');
+            printWindow.document.close();
+            printWindow.print();
         }
         
         // Make functions available globally
