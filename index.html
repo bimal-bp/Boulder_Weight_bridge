@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transport Operations - Tipper Management</title>
+    <title>SGX Mineral Data Entry</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,80 +19,39 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h1, h2 {
-            color: #333;
-        }
-        .tipper-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-        }
-        .tipper-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .tipper-id {
-            font-weight: bold;
-            font-size: 18px;
+        h1 {
             color: #2c3e50;
-        }
-        .shift-section {
-            margin-top: 15px;
-        }
-        .shift-header {
-            background-color: #eaeaea;
-            padding: 8px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .trip-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-        }
-        .trip-table th, .trip-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .trip-table th {
-            background-color: #f2f2f2;
-        }
-        .trip-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .summary {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .summary-table th, .summary-table td {
-            border: 1px solid #b8d8e6;
-            padding: 10px;
             text-align: center;
+            margin-bottom: 30px;
         }
-        .summary-table th {
-            background-color: #d0e7f5;
+        .form-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .form-section h2 {
+            margin-top: 0;
+            color: #3498db;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
         .form-group {
-            margin-bottom: 15px;
+            flex: 1;
+            min-width: 200px;
+            margin-right: 15px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: #555;
         }
         input, select {
             width: 100%;
@@ -102,401 +61,399 @@
             box-sizing: border-box;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
-            padding: 10px 15px;
             border: none;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-right: 10px;
         }
         button:hover {
-            background-color: #45a049;
-        }
-        .no-trips {
-            color: #777;
-            font-style: italic;
-            text-align: center;
-            padding: 10px;
-        }
-        .add-trip-btn {
-            background-color: #3498db;
-            margin-bottom: 10px;
-        }
-        .add-trip-btn:hover {
             background-color: #2980b9;
         }
-        .night-shift {
-            background-color: #f0f0f0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .search-box {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Transport Operations - Tipper Management</h1>
+        <h1>SGX Mineral Data Entry System</h1>
         
-        <!-- Tipper Selection -->
-        <div class="form-group">
-            <label for="tipper-select">Select Tipper:</label>
-            <select id="tipper-select">
-                <option value="AP39UQ0095">AP39UQ0095</option>
-                <option value="AP39UQ0097">AP39UQ0097</option>
-                <option value="AP39UW9880">AP39UW9880</option>
-                <option value="AP39UW9881">AP39UW9881</option>
-                <option value="AP39UY4651">AP39UY4651</option>
-                <option value="AP39WQ0926">AP39WQ0926</option>
-                <option value="AP39WQ0928">AP39WQ0928</option>
-                <option value="AP39WQ2056">AP39WQ2056</option>
-                <option value="AP39WF2052">AP39WF2052</option>
-                <option value="AP39WF2057">AP39WF2057</option>
-                <option value="AP39WF2058">AP39WF2058</option>
-                <option value="AP39WF2059">AP39WF2059</option>
-            </select>
+        <div class="form-section">
+            <h2>New Entry</h2>
+            <form id="dataForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reportDate">Report Date</label>
+                        <input type="date" id="reportDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">Customer Name</label>
+                        <input type="text" id="customerName" value="SGX MINERAL PVT LTD" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ticketNo">Ticket No</label>
+                        <input type="text" id="ticketNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleNo">Vehicle No</label>
+                        <input type="text" id="vehicleNo" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="grossWeight">Gross Weight</label>
+                        <input type="number" step="0.01" id="grossWeight" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tareWeight">Tare Weight</label>
+                        <input type="number" step="0.01" id="tareWeight" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="netWeight">Net Weight</label>
+                        <input type="number" step="0.01" id="netWeight" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dayTotalQty">Day Total Qty</label>
+                        <input type="text" id="dayTotalQty">
+                    </div>
+                    <div class="form-group">
+                        <label for="inTime">In Time</label>
+                        <input type="time" id="inTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="outTime">Out Time</label>
+                        <input type="time" id="outTime">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeDiff">Time Difference</label>
+                        <input type="text" id="timeDiff" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="remark">Remark</label>
+                        <select id="remark">
+                            <option value="ISSUED">ISSUED</option>
+                            <option value="IN STOCK">IN STOCK</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplier">Supplier</label>
+                        <select id="supplier">
+                            <option value="SGX BOULDERS">SGX BOULDERS</option>
+                            <option value="SGX STOCK">SGX STOCK</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="driver">Driver</label>
+                        <input type="text" id="driver">
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button type="submit">Save Entry</button>
+                    <button type="button" id="clearBtn">Clear Form</button>
+                </div>
+            </form>
         </div>
         
-        <!-- Selected Tipper Details -->
-        <div id="tipper-details">
-            <!-- Dynamic content will be loaded here -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by Ticket No, Vehicle No...">
+            <button id="searchBtn">Search</button>
         </div>
         
-        <!-- Daily Summary -->
-        <div class="summary">
-            <h2>Daily Summary</h2>
-            
-            <h3>FTD (First Trip Details):</h3>
-            <div class="form-group">
-                <label for="first-trip-time">First Trip Time:</label>
-                <input type="datetime-local" id="first-trip-time">
-            </div>
-            <div class="form-group">
-                <label for="first-trip-tipper">First Trip Tipper:</label>
-                <select id="first-trip-tipper">
-                    <option value="">-- Select Tipper --</option>
-                    <option value="AP39UQ0095">AP39UQ0095</option>
-                    <option value="AP39UQ0097">AP39UQ0097</option>
-                    <option value="AP39UW9880">AP39UW9880</option>
-                    <option value="AP39UW9881">AP39UW9881</option>
-                    <option value="AP39UY4651">AP39UY4651</option>
-                    <option value="AP39WQ0926">AP39WQ0926</option>
-                    <option value="AP39WQ0928">AP39WQ0928</option>
-                    <option value="AP39WQ2056">AP39WQ2056</option>
-                    <option value="AP39WF2052">AP39WF2052</option>
-                    <option value="AP39WF2057">AP39WF2057</option>
-                    <option value="AP39WF2058">AP39WF2058</option>
-                    <option value="AP39WF2059">AP39WF2059</option>
-                </select>
-            </div>
-            
-            <h3>Transport Summary</h3>
-            <table class="summary-table">
+        <div class="form-section">
+            <h2>Data Records</h2>
+            <table id="dataTable">
                 <thead>
                     <tr>
-                        <th>Shift</th>
-                        <th>Total Trips</th>
-                        <th>Total Tonnage</th>
-                        <th>Avg Tonnage/Trip</th>
+                        <th>S.No</th>
+                        <th>REPORT DATE</th>
+                        <th>DATE</th>
+                        <th>NAME OF THE CUSTOMER</th>
+                        <th>TICKET - NO</th>
+                        <th>VEHICLE NO</th>
+                        <th>GROSS WT</th>
+                        <th>TARE WT</th>
+                        <th>NET WT</th>
+                        <th>DAY TOTAL QTY</th>
+                        <th>IN</th>
+                        <th>OUT</th>
+                        <th>DIFF</th>
+                        <th>REMARK</th>
+                        <th>SUPPLIER</th>
+                        <th>DRIVER</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Day</td>
-                        <td id="day-total-trips">0</td>
-                        <td id="day-total-tonnage">0.0</td>
-                        <td id="day-avg-tonnage">0.0</td>
-                    </tr>
-                    <tr>
-                        <td>Night</td>
-                        <td id="night-total-trips">0</td>
-                        <td id="night-total-tonnage">0.0</td>
-                        <td id="night-avg-tonnage">0.0</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Combined Total</strong></td>
-                        <td id="combined-total-trips">0</td>
-                        <td id="combined-total-tonnage">0.0</td>
-                        <td id="combined-avg-tonnage">0.0</td>
-                    </tr>
+                <tbody id="tableBody">
+                    <!-- Data will be inserted here by JavaScript -->
                 </tbody>
             </table>
-            
-            <div style="text-align: right; margin-top: 20px;">
-                <button id="calculate-btn">Calculate Transport</button>
-            </div>
         </div>
     </div>
 
     <script>
-        // Sample data structure to store tipper information
-        const tippers = {
-            "AP39UQ0095": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.5 // Sample tare weight in tons
-            },
-            "AP39UQ0097": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.8
-            },
-            "AP39UW9880": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.0
-            },
-            "AP39UW9881": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.0
-            },
-            "AP39UY4651": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.7
-            },
-            "AP39WQ0926": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.5
-            },
-            "AP39WQ0928": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.5
-            },
-            "AP39WQ2056": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 12.8
-            },
-            "AP39WF2052": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.2
-            },
-            "AP39WF2057": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.2
-            },
-            "AP39WF2058": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.2
-            },
-            "AP39WF2059": {
-                dayShift: [],
-                nightShift: [],
-                tareWeight: 13.2
-            }
-        };
-
-        // Current selected tipper
-        let currentTipper = "AP39UQ0095";
-
-        // DOM elements
-        const tipperSelect = document.getElementById('tipper-select');
-        const tipperDetails = document.getElementById('tipper-details');
-        const calculateBtn = document.getElementById('calculate-btn');
-
-        // Initialize the page
-        function init() {
-            // Load tipper details when page loads
-            loadTipperDetails(currentTipper);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calculate net weight when gross or tare weight changes
+            document.getElementById('grossWeight').addEventListener('input', calculateNetWeight);
+            document.getElementById('tareWeight').addEventListener('input', calculateNetWeight);
             
-            // Add event listeners
-            tipperSelect.addEventListener('change', function() {
-                currentTipper = this.value;
-                loadTipperDetails(currentTipper);
+            // Calculate time difference when in or out time changes
+            document.getElementById('inTime').addEventListener('input', calculateTimeDiff);
+            document.getElementById('outTime').addEventListener('input', calculateTimeDiff);
+            
+            // Form submission
+            document.getElementById('dataForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveEntry();
             });
             
-            calculateBtn.addEventListener('click', calculateSummary);
-        }
-
-        // Load tipper details
-        function loadTipperDetails(tipperId) {
-            const tipper = tippers[tipperId];
+            // Clear form
+            document.getElementById('clearBtn').addEventListener('click', clearForm);
             
-            let html = `
-                <div class="tipper-card">
-                    <div class="tipper-header">
-                        <span class="tipper-id">${tipperId}</span>
-                        <span>Tare Weight: ${tipper.tareWeight} tons</span>
-                    </div>
-                    
-                    <div class="shift-section">
-                        <div class="shift-header">Day Shift</div>
-                        ${renderTripTable(tipper.dayShift, 'day', tipperId)}
-                        <button class="add-trip-btn" onclick="addTrip('${tipperId}', 'day')">Add Day Trip</button>
-                        <div class="trip-summary">
-                            <strong>Day Trips:</strong> ${tipper.dayShift.length} | 
-                            <strong>Day Total:</strong> ${calculateShiftTotal(tipper.dayShift, tipper.tareWeight).toFixed(1)} tons
-                        </div>
-                    </div>
-                    
-                    <div class="shift-section night-shift">
-                        <div class="shift-header">Night Shift</div>
-                        ${renderTripTable(tipper.nightShift, 'night', tipperId)}
-                        <button class="add-trip-btn" onclick="addTrip('${tipperId}', 'night')">Add Night Trip</button>
-                        <div class="trip-summary">
-                            <strong>Night Trips:</strong> ${tipper.nightShift.length} | 
-                            <strong>Night Total:</strong> ${calculateShiftTotal(tipper.nightShift, tipper.tareWeight).toFixed(1)} tons
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Search functionality
+            document.getElementById('searchBtn').addEventListener('click', searchEntries);
             
-            tipperDetails.innerHTML = html;
+            // Load any existing data from localStorage
+            loadData();
+        });
+        
+        function calculateNetWeight() {
+            const grossWeight = parseFloat(document.getElementById('grossWeight').value) || 0;
+            const tareWeight = parseFloat(document.getElementById('tareWeight').value) || 0;
+            const netWeight = grossWeight - tareWeight;
+            document.getElementById('netWeight').value = netWeight.toFixed(2);
         }
-
-        // Render trip table for a shift
-        function renderTripTable(trips, shiftType, tipperId) {
-            if (trips.length === 0) {
-                return '<div class="no-trips">No trips recorded for this shift</div>';
+        
+        function calculateTimeDiff() {
+            const inTime = document.getElementById('inTime').value;
+            const outTime = document.getElementById('outTime').value;
+            
+            if (inTime && outTime) {
+                const inDate = new Date(`2000-01-01T${inTime}`);
+                const outDate = new Date(`2000-01-01T${outTime}`);
+                
+                // Handle case where out time is next day (like 00:49)
+                if (outDate < inDate) {
+                    outDate.setDate(outDate.getDate() + 1);
+                }
+                
+                const diffMs = outDate - inDate;
+                const diffMins = Math.floor(diffMs / 60000);
+                const hours = Math.floor(diffMins / 60);
+                const minutes = diffMins % 60;
+                
+                document.getElementById('timeDiff').value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('timeDiff').value = '';
             }
-            
-            let tableHtml = `
-                <table class="trip-table">
-                    <thead>
-                        <tr>
-                            <th>Trip #</th>
-                            <th>In Time</th>
-                            <th>Out Time</th>
-                            <th>Gross Weight (tons)</th>
-                            <th>Net Weight (tons)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            trips.forEach((trip, index) => {
-                const netWeight = (trip.grossWeight - tippers[tipperId].tareWeight).toFixed(1);
-                tableHtml += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${formatDateTime(trip.inTime)}</td>
-                        <td>${formatDateTime(trip.outTime)}</td>
-                        <td>${trip.grossWeight.toFixed(1)}</td>
-                        <td>${netWeight}</td>
-                        <td>
-                            <button onclick="editTrip('${tipperId}', '${shiftType}', ${index})">Edit</button>
-                            <button onclick="deleteTrip('${tipperId}', '${shiftType}', ${index})">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tableHtml += `</tbody></table>`;
-            return tableHtml;
         }
-
-        // Calculate total for a shift
-        function calculateShiftTotal(trips, tareWeight) {
-            return trips.reduce((total, trip) => {
-                return total + (trip.grossWeight - tareWeight);
-            }, 0);
-        }
-
-        // Add a new trip
-        function addTrip(tipperId, shiftType) {
-            const inTime = prompt("Enter In Time (YYYY-MM-DD HH:MM):");
-            if (!inTime) return;
+        
+        function saveEntry() {
+            // Get form values
+            const reportDate = document.getElementById('reportDate').value;
+            const date = document.getElementById('date').value;
+            const customerName = document.getElementById('customerName').value;
+            const ticketNo = document.getElementById('ticketNo').value;
+            const vehicleNo = document.getElementById('vehicleNo').value;
+            const grossWeight = document.getElementById('grossWeight').value;
+            const tareWeight = document.getElementById('tareWeight').value;
+            const netWeight = document.getElementById('netWeight').value;
+            const dayTotalQty = document.getElementById('dayTotalQty').value;
+            const inTime = document.getElementById('inTime').value;
+            const outTime = document.getElementById('outTime').value;
+            const timeDiff = document.getElementById('timeDiff').value;
+            const remark = document.getElementById('remark').value;
+            const supplier = document.getElementById('supplier').value;
+            const driver = document.getElementById('driver').value;
             
-            const outTime = prompt("Enter Out Time (YYYY-MM-DD HH:MM):");
-            if (!outTime) return;
-            
-            const grossWeight = parseFloat(prompt("Enter Gross Weight (tons):"));
-            if (isNaN(grossWeight)) return;
-            
-            const newTrip = {
-                inTime: new Date(inTime),
-                outTime: new Date(outTime),
-                grossWeight: grossWeight
+            // Create entry object
+            const entry = {
+                reportDate,
+                date,
+                customerName,
+                ticketNo,
+                vehicleNo,
+                grossWeight,
+                tareWeight,
+                netWeight,
+                dayTotalQty,
+                inTime,
+                outTime,
+                timeDiff,
+                remark,
+                supplier,
+                driver
             };
             
-            tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'].push(newTrip);
-            loadTipperDetails(tipperId);
-            calculateSummary();
+            // Get existing data from localStorage
+            let entries = JSON.parse(localStorage.getItem('sgxEntries')) || [];
+            
+            // Check if this is an edit of an existing entry
+            const existingIndex = entries.findIndex(e => e.ticketNo === ticketNo);
+            if (existingIndex !== -1) {
+                entries[existingIndex] = entry;
+            } else {
+                // Add new entry
+                entries.push(entry);
+            }
+            
+            // Save back to localStorage
+            localStorage.setItem('sgxEntries', JSON.stringify(entries));
+            
+            // Refresh table
+            loadData();
+            
+            // Clear form
+            clearForm();
+            
+            alert('Entry saved successfully!');
         }
-
-        // Edit a trip
-        function editTrip(tipperId, shiftType, index) {
-            const trips = tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'];
-            const trip = trips[index];
+        
+        function loadData() {
+            const entries = JSON.parse(localStorage.getItem('sgxEntries')) || [];
+            const tableBody = document.getElementById('tableBody');
             
-            const newInTime = prompt("Enter new In Time (YYYY-MM-DD HH:MM):", formatDateTime(trip.inTime));
-            if (!newInTime) return;
+            // Clear table
+            tableBody.innerHTML = '';
             
-            const newOutTime = prompt("Enter new Out Time (YYYY-MM-DD HH:MM):", formatDateTime(trip.outTime));
-            if (!newOutTime) return;
-            
-            const newGrossWeight = parseFloat(prompt("Enter new Gross Weight (tons):", trip.grossWeight));
-            if (isNaN(newGrossWeight)) return;
-            
-            trip.inTime = new Date(newInTime);
-            trip.outTime = new Date(newOutTime);
-            trip.grossWeight = newGrossWeight;
-            
-            loadTipperDetails(tipperId);
-            calculateSummary();
+            // Add each entry to the table
+            entries.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.reportDate}</td>
+                    <td>${entry.date}</td>
+                    <td>${entry.customerName}</td>
+                    <td>${entry.ticketNo}</td>
+                    <td>${entry.vehicleNo}</td>
+                    <td>${entry.grossWeight}</td>
+                    <td>${entry.tareWeight}</td>
+                    <td>${entry.netWeight}</td>
+                    <td>${entry.dayTotalQty}</td>
+                    <td>${entry.inTime}</td>
+                    <td>${entry.outTime}</td>
+                    <td>${entry.timeDiff}</td>
+                    <td>${entry.remark}</td>
+                    <td>${entry.supplier}</td>
+                    <td>${entry.driver}</td>
+                    <td>
+                        <button onclick="editEntry('${entry.ticketNo}')">Edit</button>
+                        <button onclick="deleteEntry('${entry.ticketNo}')">Delete</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
         }
-
-        // Delete a trip
-        function deleteTrip(tipperId, shiftType, index) {
-            if (confirm("Are you sure you want to delete this trip?")) {
-                tippers[tipperId][shiftType === 'day' ? 'dayShift' : 'nightShift'].splice(index, 1);
-                loadTipperDetails(tipperId);
-                calculateSummary();
+        
+        function clearForm() {
+            document.getElementById('dataForm').reset();
+            document.getElementById('netWeight').value = '';
+            document.getElementById('timeDiff').value = '';
+            document.getElementById('customerName').value = 'SGX MINERAL PVT LTD';
+        }
+        
+        function editEntry(ticketNo) {
+            const entries = JSON.parse(localStorage.getItem('sgxEntries')) || [];
+            const entry = entries.find(e => e.ticketNo === ticketNo);
+            
+            if (entry) {
+                document.getElementById('reportDate').value = entry.reportDate;
+                document.getElementById('date').value = entry.date;
+                document.getElementById('ticketNo').value = entry.ticketNo;
+                document.getElementById('vehicleNo').value = entry.vehicleNo;
+                document.getElementById('grossWeight').value = entry.grossWeight;
+                document.getElementById('tareWeight').value = entry.tareWeight;
+                document.getElementById('netWeight').value = entry.netWeight;
+                document.getElementById('dayTotalQty').value = entry.dayTotalQty;
+                document.getElementById('inTime').value = entry.inTime;
+                document.getElementById('outTime').value = entry.outTime;
+                document.getElementById('timeDiff').value = entry.timeDiff;
+                document.getElementById('remark').value = entry.remark;
+                document.getElementById('supplier').value = entry.supplier;
+                document.getElementById('driver').value = entry.driver;
+                
+                // Scroll to form
+                document.getElementById('dataForm').scrollIntoView({ behavior: 'smooth' });
             }
         }
-
-        // Format date for display
-        function formatDateTime(date) {
-            if (!(date instanceof Date)) return '';
-            
-            const pad = num => num.toString().padStart(2, '0');
-            
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-                   `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        
+        function deleteEntry(ticketNo) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                let entries = JSON.parse(localStorage.getItem('sgxEntries')) || [];
+                entries = entries.filter(e => e.ticketNo !== ticketNo);
+                localStorage.setItem('sgxEntries', JSON.stringify(entries));
+                loadData();
+            }
         }
-
-        // Calculate and display summary
-        function calculateSummary() {
-            let dayTrips = 0;
-            let dayTonnage = 0;
-            let nightTrips = 0;
-            let nightTonnage = 0;
+        
+        function searchEntries() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
             
-            // Calculate totals across all tippers
-            Object.keys(tippers).forEach(tipperId => {
-                const tipper = tippers[tipperId];
+            for (let row of rows) {
+                const cells = row.getElementsByTagName('td');
+                let found = false;
                 
-                dayTrips += tipper.dayShift.length;
-                dayTonnage += calculateShiftTotal(tipper.dayShift, tipper.tareWeight);
+                // Check ticket no (index 4) and vehicle no (index 5)
+                if (cells[4].textContent.toLowerCase().includes(searchTerm) || 
+                    cells[5].textContent.toLowerCase().includes(searchTerm)) {
+                    found = true;
+                }
                 
-                nightTrips += tipper.nightShift.length;
-                nightTonnage += calculateShiftTotal(tipper.nightShift, tipper.tareWeight);
-            });
-            
-            // Update summary table
-            document.getElementById('day-total-trips').textContent = dayTrips;
-            document.getElementById('day-total-tonnage').textContent = dayTonnage.toFixed(1);
-            document.getElementById('day-avg-tonnage').textContent = dayTrips > 0 ? (dayTonnage / dayTrips).toFixed(1) : '0.0';
-            
-            document.getElementById('night-total-trips').textContent = nightTrips;
-            document.getElementById('night-total-tonnage').textContent = nightTonnage.toFixed(1);
-            document.getElementById('night-avg-tonnage').textContent = nightTrips > 0 ? (nightTonnage / nightTrips).toFixed(1) : '0.0';
-            
-            document.getElementById('combined-total-trips').textContent = dayTrips + nightTrips;
-            document.getElementById('combined-total-tonnage').textContent = (dayTonnage + nightTonnage).toFixed(1);
-            
-            const totalTrips = dayTrips + nightTrips;
-            document.getElementById('combined-avg-tonnage').textContent = totalTrips > 0 ? 
-                ((dayTonnage + nightTonnage) / totalTrips).toFixed(1) : '0.0';
+                row.style.display = found ? '' : 'none';
+            }
         }
-
-        // Initialize the page when loaded
-        window.onload = init;
+        
+        // Make functions available globally
+        window.editEntry = editEntry;
+        window.deleteEntry = deleteEntry;
     </script>
 </body>
 </html>
