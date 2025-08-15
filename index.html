@@ -116,6 +116,8 @@
         <h1>Boulder Weight Bridge</h1>
         
         <button id="ftdReportBtn" class="report-btn">FTD Report</button>
+        <button id="transportReportBtn" class="report-btn">Transport Operations Report</button>
+        <button id="timeDiffReportBtn" class="report-btn">Time Differences Report</button>
         
         <div class="form-section">
             <form id="dataForm">
@@ -245,8 +247,31 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Transport Operations Report Modal -->
+        <div id="transportReportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+            <div style="background-color: white; margin: 50px auto; padding: 20px; width: 80%; max-width: 900px; border-radius: 5px;">
+                <h2 style="text-align: center;">Transport Operations Report</h2>
+                <div id="transportReportContent" style="font-family: monospace; white-space: pre;"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="document.getElementById('transportReportModal').style.display = 'none'">Close</button>
+                    <button onclick="printTransportReport()">Print Report</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Time Differences Report Modal -->
+        <div id="timeDiffReportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; overflow: auto;">
+            <div style="background-color: white; margin: 50px auto; padding: 20px; width: 80%; max-width: 900px; border-radius: 5px;">
+                <h2 style="text-align: center;">Time Differences Report</h2>
+                <div id="timeDiffReportContent" style="font-family: monospace; white-space: pre;"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="document.getElementById('timeDiffReportModal').style.display = 'none'">Close</button>
+                    <button onclick="printTimeDiffReport()">Print Report</button>
+                </div>
+            </div>
+        </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Set today's date as default
@@ -274,8 +299,10 @@
             document.getElementById('searchBtn').addEventListener('click', searchEntries);
             document.getElementById('resetSearchBtn').addEventListener('click', resetSearch);
             
-            // FTD Report button
+            // Report buttons
             document.getElementById('ftdReportBtn').addEventListener('click', generateFTDReport);
+            document.getElementById('transportReportBtn').addEventListener('click', generateTransportReport);
+            document.getElementById('timeDiffReportBtn').addEventListener('click', generateTimeDiffReport);
             
             // Load any existing data from localStorage
             loadData();
@@ -452,7 +479,7 @@
                 let found = false;
                 
                 // Check vehicle no (index 2) and driver (index 11)
-                if (cells[2].textContent.toLowerCase().includes(searchTerm) || 
+                if (cells[2].textContent.toLowerCase().includes(searchTerm) ||
                     cells[11].textContent.toLowerCase().includes(searchTerm)) {
                     found = true;
                 }
@@ -469,9 +496,39 @@
             }
         }
         
+        function getVehicles() {
+            const vehicleSelect = document.getElementById('vehicleNo');
+            return Array.from(vehicleSelect.options).slice(1).map(opt => opt.value);
+        }
+        
+        function timeToMinutes(time) {
+            if (!time) return 0;
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
+        }
+        
+        function timeDiffToMinutes(td) {
+            if (!td) return 0;
+            const [h, m] = td.split(':').map(Number);
+            return h * 60 + m;
+        }
+        
+        function minutesToTimeDiff(min) {
+            const h = Math.floor(min / 60);
+            const m = Math.floor(min % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+        
+        function isDayShift(inTime) {
+            if (!inTime) return false;
+            const hour = parseInt(inTime.split(':')[0]);
+            return hour >= 6 && hour < 18;
+        }
+        
         function generateFTDReport() {
             const entries = JSON.parse(localStorage.getItem('weightEntries')) || [];
             const selectedDate = document.getElementById('date').value;
+            const vehicles = getVehicles();
             
             // Filter entries for the selected date
             const dateEntries = entries.filter(entry => entry.date === selectedDate);
@@ -479,82 +536,215 @@
             // Group by supplier and vehicle
             const reportData = {
                 "Company Tippers": {},
-                "Contractor(Govind) Tippers": {},
                 "STOCK TO CRUSHER": {}
             };
             
-            dateEntries.forEach(entry => {
-                if (!reportData[entry.supplier][entry.vehicleNo]) {
-                    reportData[entry.supplier][entry.vehicleNo] = {
+            // Initialize all vehicles for each supplier
+            Object.keys(reportData).forEach(supplier => {
+                vehicles.forEach(vehicle => {
+                    reportData[supplier][vehicle] = {
                         trips: 0,
                         totalWeight: 0
                     };
-                }
-                
-                if (entry.remark === "ISSUED") {
+                });
+            });
+            
+            dateEntries.forEach(entry => {
+                if (entry.remark === "ISSUED" && reportData[entry.supplier] && reportData[entry.supplier][entry.vehicleNo]) {
                     reportData[entry.supplier][entry.vehicleNo].trips += 1;
-                    reportData[entry.supplier][entry.vehicleNo].totalWeight += parseFloat(entry.netWeight);
+                    reportData[entry.supplier][entry.vehicleNo].totalWeight += parseFloat(entry.netWeight) || 0;
                 }
             });
             
             // Generate report text
             let reportText = `${selectedDate}\t\t\n`;
-            reportText += `Company Tippers\t\t\n`;
             
-            // Add company tippers data
+            // Add company tippers data (without header)
             let companyTotalTrips = 0;
             let companyTotalWeight = 0;
             
-            for (const vehicle in reportData["Company Tippers"]) {
+            for (const vehicle of vehicles) {
                 const data = reportData["Company Tippers"][vehicle];
-                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
+                reportText += `${vehicle} ${data.trips} ${data.totalWeight.toFixed(2)}\n`;
                 companyTotalTrips += data.trips;
                 companyTotalWeight += data.totalWeight;
             }
             
-            reportText += `TOTAL\t${companyTotalTrips}\t${companyTotalWeight.toFixed(2)}\n\n`;
-            
-            // Add contractor tippers data
-            reportText += `Contractor(Govind) Tippers\t\t\n`;
-            let contractorTotalTrips = 0;
-            let contractorTotalWeight = 0;
-            
-            for (const vehicle in reportData["Contractor(Govind) Tippers"]) {
-                const data = reportData["Contractor(Govind) Tippers"][vehicle];
-                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
-                contractorTotalTrips += data.trips;
-                contractorTotalWeight += data.totalWeight;
-            }
-            
-            reportText += `TOTAL\t${contractorTotalTrips}\t${contractorTotalWeight.toFixed(2)}\n\n`;
+            reportText += `TOTAL ${companyTotalTrips} ${companyTotalWeight.toFixed(2)}\n\n`;
             
             // Add stock to crusher data
-            reportText += `STOCK TO CRUSHER\t\t\n`;
+            reportText += `STOCK TO CRUSHER\n`;
             let stockTotalTrips = 0;
             let stockTotalWeight = 0;
             
-            for (const vehicle in reportData["STOCK TO CRUSHER"]) {
+            for (const vehicle of vehicles) {
                 const data = reportData["STOCK TO CRUSHER"][vehicle];
-                reportText += `${vehicle}\t${data.trips}\t${data.totalWeight.toFixed(2)}\n`;
+                reportText += `${vehicle} ${data.trips} ${data.totalWeight.toFixed(2)}\n`;
                 stockTotalTrips += data.trips;
                 stockTotalWeight += data.totalWeight;
             }
             
-            reportText += `TOTAL\t${stockTotalTrips}\t${stockTotalWeight.toFixed(2)}\n\n`;
+            reportText += `TOTAL ${stockTotalTrips} ${stockTotalWeight.toFixed(2)}\n\n`;
             
             // Add summary
             reportText += `\t\t\n`;
-            reportText += `SGX BOULDERS\t${companyTotalTrips}\t${companyTotalWeight.toFixed(2)}\n`;
-            reportText += `SGX STOCK\t${stockTotalTrips}\t${stockTotalWeight.toFixed(2)}\n`;
-            reportText += `TOTAL\t${companyTotalTrips + stockTotalTrips}\t${(companyTotalWeight + stockTotalWeight).toFixed(2)}\n`;
+            reportText += `SGX BOULDERS ${companyTotalTrips} ${companyTotalWeight.toFixed(2)}\n`;
+            reportText += `SGX STOCK ${stockTotalTrips} ${stockTotalWeight.toFixed(2)}\n`;
+            reportText += `TOTAL ${companyTotalTrips + stockTotalTrips} ${(companyTotalWeight + stockTotalWeight).toFixed(2)}\n`;
             
             // Display report in modal
             document.getElementById('ftdReportContent').textContent = reportText;
             document.getElementById('ftdReportModal').style.display = 'block';
         }
         
+        function generateTransportReport() {
+            const entries = JSON.parse(localStorage.getItem('weightEntries')) || [];
+            const selectedDate = document.getElementById('date').value;
+            const vehicles = getVehicles();
+            
+            // Filter entries for the selected date and ISSUED
+            const dateEntries = entries.filter(entry => entry.date === selectedDate && entry.remark === "ISSUED");
+            
+            // Group by vehicle, then day/night
+            const vehicleShifts = {};
+            vehicles.forEach(vehicle => {
+                vehicleShifts[vehicle] = {
+                    day: [],
+                    night: []
+                };
+            });
+            
+            dateEntries.forEach(entry => {
+                const shift = isDayShift(entry.inTime) ? 'day' : 'night';
+                vehicleShifts[entry.vehicleNo][shift].push(entry);
+            });
+            
+            // Sort trips by inTime
+            vehicles.forEach(vehicle => {
+                ['day', 'night'].forEach(shift => {
+                    vehicleShifts[vehicle][shift].sort((a, b) => timeToMinutes(a.inTime) - timeToMinutes(b.inTime));
+                });
+            });
+            
+            // Generate report text
+            let reportText = `Transport Operations\nTipper-wise Details\n`;
+            
+            let totalDayTrips = 0;
+            let totalDayTonnage = 0;
+            let totalNightTrips = 0;
+            let totalNightTonnage = 0;
+            
+            vehicles.forEach(vehicle => {
+                const dayTrips = vehicleShifts[vehicle].day;
+                const nightTrips = vehicleShifts[vehicle].night;
+                
+                let dayTotal = 0;
+                dayTrips.forEach(trip => dayTotal += parseFloat(trip.netWeight) || 0);
+                
+                let nightTotal = 0;
+                nightTrips.forEach(trip => nightTotal += parseFloat(trip.netWeight) || 0);
+                
+                reportText += `${vehicle}\nDay Shift:\n`;
+                for (let i = 0; i < 8; i++) {
+                    const weight = (i < dayTrips.length) ? dayTrips[i].netWeight : '0';
+                    reportText += `${weight}\n`;
+                }
+                
+                reportText += `Night Shift:\n`;
+                for (let i = 0; i < 8; i++) {
+                    const weight = (i < nightTrips.length) ? nightTrips[i].netWeight : '0';
+                    reportText += `${weight}\n`;
+                }
+                
+                reportText += `Day Trips: ${dayTrips.length}\nDay Total: ${dayTotal.toFixed(2)}\n`;
+                reportText += `Night Trips: ${nightTrips.length}\nNight Total: ${nightTotal.toFixed(2)}\n`;
+                
+                totalDayTrips += dayTrips.length;
+                totalDayTonnage += dayTotal;
+                totalNightTrips += nightTrips.length;
+                totalNightTonnage += nightTotal;
+            });
+            
+            // Daily Summary
+            reportText += `Daily Summary\nFTD (First Trip Details):\nEnter first trip details\n`;
+            reportText += `Total Day Shift Trips:\n${totalDayTrips}\n`;
+            reportText += `Total Day Shift Tonnage:\n${totalDayTonnage.toFixed(2)}\n`;
+            reportText += `Total Night Shift Trips:\n${totalNightTrips}\n`;
+            reportText += `Total Night Shift Tonnage:\n${totalNightTonnage.toFixed(2)}\n`;
+            
+            // Display report in modal
+            document.getElementById('transportReportContent').textContent = reportText;
+            document.getElementById('transportReportModal').style.display = 'block';
+        }
+        
+        function generateTimeDiffReport() {
+            const entries = JSON.parse(localStorage.getItem('weightEntries')) || [];
+            const selectedDate = document.getElementById('date').value;
+            const vehicles = getVehicles();
+            
+            // Filter entries for the selected date and ISSUED
+            const dateEntries = entries.filter(entry => entry.date === selectedDate && entry.remark === "ISSUED");
+            
+            // Group by vehicle
+            const vehicleTrips = {};
+            vehicles.forEach(vehicle => {
+                vehicleTrips[vehicle] = [];
+            });
+            
+            dateEntries.forEach(entry => {
+                vehicleTrips[entry.vehicleNo].push(entry);
+            });
+            
+            // Sort by inTime
+            vehicles.forEach(vehicle => {
+                vehicleTrips[vehicle].sort((a, b) => timeToMinutes(a.inTime) - timeToMinutes(b.inTime));
+            });
+            
+            // Generate report text
+            let reportText = `${selectedDate} Time Differences Report\n\n`;
+            
+            vehicles.forEach(vehicle => {
+                const trips = vehicleTrips[vehicle];
+                if (trips.length === 0) return;
+                
+                reportText += `${vehicle}\n`;
+                
+                let totalMinutes = 0;
+                trips.forEach(trip => {
+                    const netWeight = parseFloat(trip.netWeight).toFixed(2);
+                    const timeDiff = trip.timeDiff || '00:00';
+                    totalMinutes += timeDiffToMinutes(timeDiff);
+                    reportText += `Net Weight: ${netWeight} kg, Time Diff: ${timeDiff}\n`;
+                });
+                
+                const avgMinutes = trips.length > 0 ? totalMinutes / trips.length : 0;
+                const avgTime = minutesToTimeDiff(avgMinutes);
+                reportText += `Average Time Diff: ${avgTime}\n\n`;
+            });
+            
+            // Display report in modal
+            document.getElementById('timeDiffReportContent').textContent = reportText;
+            document.getElementById('timeDiffReportModal').style.display = 'block';
+        }
+        
         function printFTDReport() {
             const reportContent = document.getElementById('ftdReportContent').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<pre>' + reportContent + '</pre>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function printTransportReport() {
+            const reportContent = document.getElementById('transportReportContent').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<pre>' + reportContent + '</pre>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function printTimeDiffReport() {
+            const reportContent = document.getElementById('timeDiffReportContent').textContent;
             const printWindow = window.open('', '_blank');
             printWindow.document.write('<pre>' + reportContent + '</pre>');
             printWindow.document.close();
